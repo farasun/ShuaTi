@@ -1,0 +1,352 @@
+[
+  {
+    "qid": "1-1-0003",
+    "text": "DAMA术语相关问题: 数据管理的主要目标是什么？",
+    "options": [
+      "确保数据的准确性和完整性",
+      "提高数据的处理速度",
+      "支持企业的战略决策",
+      "减少数据的存储成本"
+    ],
+    "correctIndex": 0,
+    "chapter": "第1章",
+    "difficulty": "L2",
+    "knowledgePointId": "1-1"
+  },
+  {
+    "qid": "1-1-0004",
+    "text": "根据DAMA-DMBOK，数据管理的哪个领域主要关注数据的定义和描述？",
+    "options": [
+      "数据架构",
+      "数据建模和设计",
+      "元数据管理",
+      "数据存储和操作"
+    ],
+    "correctIndex": 2,
+    "chapter": "第1章",
+    "difficulty": "L2",
+    "knowledgePointId": "1-1"
+  },
+  {
+    "qid": "1-2-0003",
+    "text": "数据治理的核心职责是什么？",
+    "options": [
+      "数据库的日常维护",
+      "制定和执行数据政策与标准",
+      "数据仓库的建设",
+      "数据的可视化展示"
+    ],
+    "correctIndex": 1,
+    "chapter": "第1章",
+    "difficulty": "L1",
+    "knowledgePointId": "1-2"
+  },
+  {
+    "qid": "1-2-0004",
+    "text": "数据质量管理的关键维度不包括以下哪项？",
+    "options": [
+      "准确性",
+      "完整性",
+      "时效性",
+      "趣味性"
+    ],
+    "correctIndex": 3,
+    "chapter": "第1章",
+    "difficulty": "L1",
+    "knowledgePointId": "1-2"
+  },
+  {
+    "qid": "1-3-0002",
+    "text": "元数据管理主要解决的问题是？",
+    "options": [
+      "数据处理效率",
+      "数据的含义和上下文",
+      "数据存储容量",
+      "数据可视化展示"
+    ],
+    "correctIndex": 1,
+    "chapter": "第1章",
+    "difficulty": "L2",
+    "knowledgePointId": "1-3"
+  },
+  {
+    "qid": "2-1-0003",
+    "text": "数据建模的主要目的是什么？",
+    "options": [
+      "增加数据库表的数量",
+      "提高数据处理速度",
+      "准确表达业务需求和数据关系",
+      "减少存储空间的使用"
+    ],
+    "correctIndex": 2,
+    "chapter": "第2章",
+    "difficulty": "L2",
+    "knowledgePointId": "2-1"
+  },
+  {
+    "qid": "2-1-0004",
+    "text": "关系型数据库的核心概念是？",
+    "options": [
+      "表",
+      "树",
+      "图",
+      "文档"
+    ],
+    "correctIndex": 0,
+    "chapter": "第2章",
+    "difficulty": "L1",
+    "knowledgePointId": "2-1"
+  },
+  {
+    "qid": "2-2-0001",
+    "text": "数据架构的主要目标是什么？",
+    "options": [
+      "设计数据库的物理结构",
+      "定义数据的存储和管理方式",
+      "优化数据处理速度",
+      "减少数据存储成本"
+    ],
+    "correctIndex": 1,
+    "chapter": "第2章",
+    "difficulty": "L2",
+    "knowledgePointId": "2-2"
+  },
+  {
+    "qid": "2-2-0002",
+    "text": "数据架构中的数据流图主要用于？",
+    "options": [
+      "展示数据的存储结构",
+      "描述数据在系统中的流动和处理过程",
+      "优化数据库性能",
+      "设计用户界面"
+    ],
+    "correctIndex": 1,
+    "chapter": "第2章",
+    "difficulty": "L2",
+    "knowledgePointId": "2-2"
+  },
+  {
+    "qid": "3-1-0001",
+    "text": "数据存储和操作的关键挑战是什么？",
+    "options": [
+      "确保数据的安全性和隐私保护",
+      "提高数据的读写速度",
+      "减少存储设备的能耗",
+      "增加存储设备的寿命"
+    ],
+    "correctIndex": 0,
+    "chapter": "第3章",
+    "difficulty": "L2",
+    "knowledgePointId": "3-1"
+  },
+  {
+    "qid": "3-1-0002",
+    "text": "在数据存储设计中，以下哪项不是需要考虑的关键因素？",
+    "options": [
+      "数据的访问频率",
+      "数据的存储成本",
+      "数据的备份和恢复策略",
+      "数据的娱乐性"
+    ],
+    "correctIndex": 3,
+    "chapter": "第3章",
+    "difficulty": "L1",
+    "knowledgePointId": "3-1"
+  },
+  {
+    "qid": "3-2-0001",
+    "text": "数据安全的主要目标是什么？",
+    "options": [
+      "防止未经授权的访问和数据泄露",
+      "提高数据处理速度",
+      "减少数据存储成本",
+      "增加数据的娱乐性"
+    ],
+    "correctIndex": 0,
+    "chapter": "第3章",
+    "difficulty": "L2",
+    "knowledgePointId": "3-2"
+  },
+  {
+    "qid": "3-2-0002",
+    "text": "以下哪项不是常见的数据加密技术？",
+    "options": [
+      "对称加密",
+      "非对称加密",
+      "哈希算法",
+      "数据压缩"
+    ],
+    "correctIndex": 3,
+    "chapter": "第3章",
+    "difficulty": "L1",
+    "knowledgePointId": "3-2"
+  },
+  {
+    "qid": "4-1-0001",
+    "text": "数据集成的主要挑战是什么？",
+    "options": [
+      "数据格式和结构的不一致性",
+      "提高数据处理速度",
+      "减少数据存储成本",
+      "增加数据的娱乐性"
+    ],
+    "correctIndex": 0,
+    "chapter": "第4章",
+    "difficulty": "L2",
+    "knowledgePointId": "4-1"
+  },
+  {
+    "qid": "4-1-0002",
+    "text": "在数据集成过程中，以下哪项技术用于解决数据冲突？",
+    "options": [
+      "数据清洗",
+      "数据转换",
+      "数据融合",
+      "数据加密"
+    ],
+    "correctIndex": 0,
+    "chapter": "第4章",
+    "difficulty": "L2",
+    "knowledgePointId": "4-1"
+  },
+  {
+    "qid": "4-2-0001",
+    "text": "数据仓库的主要功能是什么？",
+    "options": [
+      "存储和管理海量数据",
+      "支持决策分析",
+      "提高数据处理速度",
+      "减少数据存储成本"
+    ],
+    "correctIndex": 1,
+    "chapter": "第4章",
+    "difficulty": "L2",
+    "knowledgePointId": "4-2"
+  },
+  {
+    "qid": "4-2-0002",
+    "text": "数据仓库的四个基本特性是什么？",
+    "options":      [
+ "面向主题、集成、时变、非易失",
+      "面向事务、实时、易变、非集成",
+      "面向分析、分布式、时变、易失",
+      "面向存储、压缩、安全、非易失"
+    ],
+    "correctIndex": 0,
+    "chapter": "第4章",
+    "difficulty": "L2",
+    "knowledgePointId": "4-2"
+  },
+  {
+    "qid": "5-1-0001",
+    "text": "数据挖掘的主要目标是什么？",
+    "options": [
+      "从大量数据中提取有用的知识和模式",
+      "提高数据处理速度",
+      "减少数据存储成本",
+      "增加数据的娱乐性"
+    ],
+    "correctIndex": 0,
+    "chapter": "第5章",
+    "difficulty": "L2",
+    "knowledgePointId": "5-1"
+  },
+  {
+    "qid": "5-1-0002",
+    "text": "以下哪项不是常见的数据挖掘算法？",
+    "options": [
+      "决策树",
+      "神经网络",
+      "关联规则",
+      "数据压缩"
+    ],
+    "correctIndex": 3,
+    "chapter": "第5章",
+    "difficulty": "L1",
+    "knowledgePointId": "5-1"
+  },
+  {
+    "qid": "5-2-0001",
+    "text": "数据可视化的主要目的是什么？",
+    "options": [
+      "将数据以直观的方式展示，便于理解和分析",
+      "提高数据处理速度",
+      "减少数据存储成本",
+      "增加数据的娱乐性"
+    ],
+    "correctIndex": 0,
+    "chapter": "第5章",
+    "difficulty": "L2",
+    "knowledgePointId": "5-2"
+  },
+  {
+    "qid": "5-2-0002",
+    "text": "以下哪项不是常见的数据可视化工具？",
+    "options": [
+      "Tableau",
+      "PowerBI",
+      "Excel",
+      "Photoshop"
+    ],
+    "correctIndex": 3,
+    "chapter": "第5章",
+    "difficulty": "L1",
+    "knowledgePointId": "5-2"
+  },
+  {
+    "qid": "6-1-0001",
+    "text": "大数据的主要特征是什么？",
+    "options": [
+      "Volume（数据量大）、Velocity（速度快）、Variety（类型多）、Value（价值高）",
+      "Volume（数据量大）、Velocity（速度快）、Variety（类型多）、Veracity（真实性）",
+      "Volume（数据量大）、Velocity（速度快）、Variety（类型多）、Visualization（可视化）",
+      "Volume（数据量大）、Velocity（速度快）、Variety（类型多）、Validation（验证）"
+    ],
+    "correctIndex": 1,
+    "chapter": "第6章",
+    "difficulty": "L2",
+    "knowledgePointId": "6-1"
+  },
+  {
+    "qid": "6-1-0002",
+    "text": "以下哪项不是常见的大数据处理框架？",
+    "options": [
+      "Hadoop",
+      "Spark",
+      "Flink",
+      "Photoshop"
+    ],
+    "correctIndex": 3,
+    "chapter": "第6章",
+    "difficulty": "L1",
+    "knowledgePointId": "6-1"
+  },
+  {
+    "qid": "6-2-0001",
+    "text": "数据湖的主要功能是什么？",
+    "options": [
+      "存储和管理原始数据，支持多种数据类型和格式",
+      "提高数据处理速度",
+      "减少数据存储成本",
+      "增加数据的娱乐性"
+    ],
+    "correctIndex": 0,
+    "chapter": "第6章",
+    "difficulty": "L2",
+    "knowledgePointId": "6-2"
+  },
+  {
+    "qid": "6-2-0002",
+    "text": "数据湖与数据仓库的主要区别是什么？",
+    "options": [
+      "数据湖存储原始数据，支持多种数据类型；数据仓库存储经过处理的数据，主要用于决策分析",
+      "数据湖主要用于数据挖掘；数据仓库主要用于数据存储",
+      "数据湖处理速度快；数据仓库处理速度慢",
+      "数据湖成本高；数据仓库成本低"
+    ],
+    "correctIndex": 0,
+    "chapter": "第6章",
+    "difficulty": "L2",
+    "knowledgePointId": "6-2"
+  }
+]
