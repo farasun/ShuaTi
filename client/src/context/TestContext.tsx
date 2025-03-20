@@ -52,6 +52,7 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
   const [testResults, setTestResults] = useState<TestResult | null>(null);
   const [wrongAnswers, setWrongAnswers] = useState<WrongAnswer[]>([]);
   const [showWrongAnswers, setShowWrongAnswers] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Add loading state
   const { toast } = useToast();
 
   // 修改：不自动恢复测试，确保默认显示首页
@@ -345,17 +346,22 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
 
   // 退出当前测试，返回首页
   const exitTest = async () => {
-    if (!activeTest) return;
-
     try {
-      const confirmExit = window.confirm("确定要退出当前测试吗？未保存的答案将会丢失。");
+      const confirmExit = window.confirm("确定要退出测试吗？当前进度将会保存。");
       if (!confirmExit) return;
 
-      // 清除当前测试数据
-      await clearCurrentTest();
+      setIsLoading(true);
+
+      // 保存当前状态
+      if (activeTest && !activeTest.completed) {
+        await saveCurrentTest(activeTest);
+      }
+
+      // 清理状态
       setActiveTest(null);
       setSelectedAnswer(null);
       setTestResults(null);
+      setShowWrongAnswers(false);
 
       toast({
         description: "已退出测试",
@@ -365,6 +371,21 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
       console.error('Error exiting test:', error);
       toast({
         description: "退出测试时出错，请重试",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 增加状态同步函数
+  const syncTestState = async (test: Test) => {
+    try {
+      await saveCurrentTest(test);
+    } catch (error) {
+      console.error('Error syncing test state:', error);
+      toast({
+        description: "保存测试状态失败",
         variant: "destructive"
       });
     }
