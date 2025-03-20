@@ -1,3 +1,35 @@
+
+import React, { useEffect } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Info } from 'lucide-react';
+import { useTest } from '@/context/TestContext';
+
+export const TestScreen: React.FC = () => {
+  const { 
+    activeTest, 
+    currentQuestion, 
+    selectedAnswer, 
+    selectAnswer, 
+    progress 
+  } = useTest();
+
+  // 添加页面刷新确认
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (activeTest && !activeTest.completed) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [activeTest]);
+
+  // If there's no active test, don't render anything
+  if (!activeTest || !currentQuestion) return null;
+
 import React, { useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';

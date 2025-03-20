@@ -106,13 +106,13 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
         await clearCurrentTest();
         return;
       }
-      
+
       // 如果当前有未完成的测试，询问是否要开始新测试
       if (activeTest?.completed === false) {
         const confirmStart = window.confirm("当前有未完成的测试，确定要开始新测试吗？");
         if (!confirmStart) return;
       }
-      
+
       // 生成测试题目
       console.log(`正在生成${numQuestions}题的测试...`);
       const questions = generateTest(questionBank as Question[], numQuestions);
@@ -151,7 +151,7 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
       setTestResults(null);
       setShowWrongAnswers(false);
       await saveCurrentTest(newTest);
-      
+
       // 显示成功提示
       toast({
         description: `已生成${numQuestions}道题的测试`,
@@ -299,7 +299,7 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
 
       // 重新获取最新的错题列表，包含统计后的数据
       const updatedWrongAnswers = await getWrongAnswers();
-      
+
       // Update state
       setActiveTest(null);
       setTestResults(result);
@@ -342,21 +342,21 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
       description: "错题已导出", // Wrong answers exported
     });
   };
-  
+
   // 退出当前测试，返回首页
   const exitTest = async () => {
     if (!activeTest) return;
-    
+
     try {
       const confirmExit = window.confirm("确定要退出当前测试吗？未保存的答案将会丢失。");
       if (!confirmExit) return;
-      
+
       // 清除当前测试数据
       await clearCurrentTest();
       setActiveTest(null);
       setSelectedAnswer(null);
       setTestResults(null);
-      
+
       toast({
         description: "已退出测试",
         duration: 1500,
@@ -369,6 +369,14 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
       });
     }
   };
+
+  const finishTest = async () => {
+    if (!activeTest) return;
+    // 清理localStorage中的测试状态
+    localStorage.removeItem('activeTest');
+    localStorage.removeItem('selectedAnswer');
+  };
+
 
   // Context value
   const contextValue: TestContextType = {
