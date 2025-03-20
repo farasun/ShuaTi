@@ -3,15 +3,30 @@ import { v4 as uuidv4 } from 'uuid';
 import { WRONG_ANSWERS_KEY, USER_STATS_KEY, DEFAULT_STATS } from '@/lib/constants';
 import type { WrongAnswer, WrongAnswerTemp, UserStats, TestResult, Test } from '@shared/types';
 
-// Configure localforage
+// Configure localforage with error retry
 localforage.config({
   name: 'exam-prep-app',
   storeName: 'exam_prep_data',
-  description: 'Storage for the Exam Prep Application'
+  description: 'Storage for the Exam Prep Application',
+  driver: [localforage.INDEXEDDB, localforage.WEBSQL, localforage.LOCALSTORAGE]
 });
 
 // Storage keys
 const CURRENT_TEST_KEY = 'currentTest';
+const MAX_RETRIES = 3;
+
+// Helper function to retry failed operations
+async function retryOperation(operation: () => Promise<any>, retries = MAX_RETRIES): Promise<any> {
+  try {
+    return await operation();
+  } catch (error) {
+    if (retries > 0) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return retryOperation(operation, retries - 1);
+    }
+    throw error;
+  }
+}
 const TEST_RESULTS_KEY = 'testResults';
 
 // Clear all data

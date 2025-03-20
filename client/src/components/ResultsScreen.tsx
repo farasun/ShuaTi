@@ -18,15 +18,16 @@ export const ResultsScreen: React.FC = () => {
   // 回到首页 - 使用状态管理而非页面刷新
   const [isNavigating, setIsNavigating] = useState(false);
   
-  const goToHome = () => {
-    // 显示导航反馈
+  const goToHome = async () => {
     setIsNavigating(true);
-    
-    // 使用setTimeout确保UI状态更新，但不延迟导航
-    setTimeout(() => {
-      closeWrongAnswersReview(); // 确保关闭任何打开的错题页面
-      startNewTest(0); // 使用0作为参数，表示不启动测试但重置状态
-    }, 50);
+    try {
+      await closeWrongAnswersReview(); // 确保关闭任何打开的错题页面
+      await startNewTest(0); // 使用0作为参数，表示不启动测试但重置状态
+    } catch (error) {
+      console.error('Navigation error:', error);
+    } finally {
+      setIsNavigating(false);
+    }
   };
   
   return (
