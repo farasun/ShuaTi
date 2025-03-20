@@ -289,25 +289,33 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
         percentage
       };
 
-      // Process wrong answers
+      // Process wrong answers with batching
       const testWrongAnswerTemps: WrongAnswerTemp[] = completedTest.answers
         .filter(answer => !answer.isCorrect && answer.selectedOptionIndex !== null)
         .map(answer => {
           const question = completedTest.questions.find(q => q.qid === answer.qid)!;
           return {
             qid: answer.qid,
-            timestamp: completedTest.endTime || new Date().toISOString(), // 确保timestamp一定有值
+            timestamp: completedTest.endTime || new Date().toISOString(),
             question,
             userOptionIndex: answer.selectedOptionIndex!
           };
         });
 
-      // 获取当前已存储的错题列表，用于更新UI
-      const currentWrongAnswers = await getWrongAnswers();
+      // 批量保存错题，减少存储操作次数
+      try {
+        const currentWrongAnswers = await getWrongAnswers();
+        const batchSize = 10; // 每批处理10道题
 
-      // 保存新的错题（会合并统计错题次数）
-      for (const wrongAnswerTemp of testWrongAnswerTemps) {
-        await saveWrongAnswer(wrongAnswerTemp);
+        for (let i = 0; i < testWrongAnswerTemps.length; i += batchSize) {
+          const batch = testWrongAnswerTemps.slice(i, i + batchSize);
+          await Promise.all(batch.map(wrongAnswerTemp => 
+            retryOperation(() => saveWrongAnswer(wrongAnswerTemp))
+          ));
+        }
+      } catch (error) {
+        console.error('Failed to save wrong answers:', error);
+        throw new Error('保存错题失败，请重试');
       }
 
       // Save test result with retry
@@ -461,4 +469,19 @@ export const useTest = () => {
     throw new Error('useTest must be used within a TestProvider');
   }
   return context;
+};
+
+const retryOperation = async (operation: () => Promise<void>, maxRetries = 3, retryDelay = 1000) => {
+  let retries = 0;
+  while (retries < maxRetries) {
+    try {
+      await operation();
+      return;
+    } catch (error) {
+      console.warn(`Operation failed, retrying in ${retryDelay}ms...`, error);
+      retries++;
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
+    }
+  }
+  throw new Error(`Operation failed after ${maxRetries} retries.`);
 };
