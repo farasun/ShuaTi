@@ -9,7 +9,8 @@ import {
   generateTestId,
   saveWrongAnswer,
   exportWrongAnswersAsJson,
-  getWrongAnswers
+  getWrongAnswers,
+  saveWrongAnswers
 } from '../lib/storage';
 import questionBank from '../../data/questionBank.json';
 import { useToast } from '@/hooks/use-toast';
@@ -302,20 +303,43 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
           };
         });
 
-      // 批量保存错题，减少存储操作次数
       try {
+        // 获取当前错题本
         const currentWrongAnswers = await getWrongAnswers();
-        const batchSize = 10; // 每批处理10道题
 
+        // 先保存新错题，使用较小的批次
+        const batchSize = 5;
         for (let i = 0; i < testWrongAnswerTemps.length; i += batchSize) {
           const batch = testWrongAnswerTemps.slice(i, i + batchSize);
-          await Promise.all(batch.map(wrongAnswerTemp => 
-            retryOperation(() => saveWrongAnswer(wrongAnswerTemp))
-          ));
+          for (const wrongAnswerTemp of batch) {
+            try {
+              const existingIndex = currentWrongAnswers.findIndex(wa => wa.qid === wrongAnswerTemp.qid);
+              if (existingIndex !== -1) {
+                // 更新已存在的错题记录
+                currentWrongAnswers[existingIndex] = {
+                  ...currentWrongAnswers[existingIndex],
+                  timestamp: wrongAnswerTemp.timestamp,
+                  wrongCount: (currentWrongAnswers[existingIndex].wrongCount || 0) + 1
+                };
+              } else {
+                // 添加新错题记录
+                currentWrongAnswers.push({
+                  ...wrongAnswerTemp,
+                  wrongCount: 1
+                });
+              }
+              await new Promise(resolve => setTimeout(resolve, 50));
+            } catch (error) {
+              console.error('Error updating wrong answer:', wrongAnswerTemp.qid, error);
+            }
+          }
         }
+
+        // 所有错题处理完成后，一次性保存更新后的错题本
+        await saveWrongAnswers(currentWrongAnswers);
       } catch (error) {
-        console.error('Failed to save wrong answers:', error);
-        throw new Error('保存错题失败，请重试');
+        console.error('Failed to update wrong answers:', error);
+        // 即使出错也继续执行，确保测试结果能保存
       }
 
       // Save test result with retry
