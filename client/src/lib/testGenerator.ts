@@ -317,6 +317,10 @@ const validateDistribution = (
 };
 
 // 根据分配从各章节选择题目
+// 用于存储最近使用过的题目ID及其使用时间
+const recentlyUsedQuestions = new Map<string, number>();
+const COOLDOWN_PERIOD = 1000 * 60 * 30; // 30分钟冷却期
+
 const selectQuestionsFromChapters = (
   questionBank: Question[],
   chapterAllocations: Map<string, number>,
@@ -324,6 +328,14 @@ const selectQuestionsFromChapters = (
   log: TestGenerationLog
 ): Question[] => {
   const selectedQuestions: Question[] = [];
+  const now = Date.now();
+  
+  // 清理过期的使用记录
+  for (const [qid, timestamp] of recentlyUsedQuestions.entries()) {
+    if (now - timestamp > COOLDOWN_PERIOD) {
+      recentlyUsedQuestions.delete(qid);
+    }
+  }
   
   // 按章节分组
   const questionsByChapter = _.groupBy(questionBank, 'chapter');
@@ -338,9 +350,21 @@ const selectQuestionsFromChapters = (
         log.warnings.push(`${chapter}实际可用题目(${chapterQuestions.length})少于分配数量(${allocation})`);
       }
       
+      // 过滤掉最近使用过的题目
+      const availableQuestions = chapterQuestions.filter(q => 
+        !recentlyUsedQuestions.has(q.qid) || 
+        (now - (recentlyUsedQuestions.get(q.qid) || 0)) > COOLDOWN_PERIOD
+      );
+      
+      // 如果可用题目太少，使用所有题目
+      const questionsToUse = availableQuestions.length < allocation ? chapterQuestions : availableQuestions;
+      
       // 随机选择题目
-      const shuffled = _.shuffle(chapterQuestions);
+      const shuffled = _.shuffle(questionsToUse);
       const selected = shuffled.slice(0, allocation);
+      
+      // 记录选中的题目
+      selected.forEach(q => recentlyUsedQuestions.set(q.qid, now));
       
       selectedQuestions.push(...selected);
     }
@@ -355,16 +379,26 @@ const selectQuestionsFromChapters = (
       console.log(`最终调整: 从 ${finalQuestions.length} 减少到 ${totalQuestions} 题`);
       finalQuestions = finalQuestions.slice(0, totalQuestions);
     } else if (finalQuestions.length < totalQuestions && questionBank.length >= totalQuestions) {
-      // 如果题目不足但题库足够，从题库中随机补充
       console.log(`题目不足: 需要从题库随机补充 ${totalQuestions - finalQuestions.length} 题`);
       
-      // 获取未被选中的题目
+      // 获取未被选中且未在冷却期的题目
       const selectedIds = new Set(finalQuestions.map(q => q.qid));
-      const remainingQuestions = questionBank.filter(q => !selectedIds.has(q.qid));
+      const remainingQuestions = questionBank.filter(q => 
+        !selectedIds.has(q.qid) && 
+        (!recentlyUsedQuestions.has(q.qid) || (now - (recentlyUsedQuestions.get(q.qid) || 0)) > COOLDOWN_PERIOD)
+      );
+      
+      // 如果剩余可用题目不足，则使用所有剩余题目
+      const questionsToUse = remainingQuestions.length === 0 ? 
+        questionBank.filter(q => !selectedIds.has(q.qid)) : 
+        remainingQuestions;
       
       // 随机选择并补充
-      const additional = _.shuffle(remainingQuestions).slice(0, totalQuestions - finalQuestions.length);
+      const additional = _.shuffle(questionsToUse).slice(0, totalQuestions - finalQuestions.length);
       finalQuestions = [...finalQuestions, ...additional];
+      
+      // 记录补充的题目
+      additional.forEach(q => recentlyUsedQuestions.set(q.qid, now));
       
       log.warnings.push(`由于分配不均，随机补充了${additional.length}题以达到要求数量`);
     }
