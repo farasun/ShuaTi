@@ -272,6 +272,9 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
         endTime: new Date().toISOString()
       };
 
+      // 先保存完成状态
+      await saveCurrentTest(completedTest);
+
       // Calculate score
       const correctAnswers = completedTest.answers.filter(a => a.isCorrect).length;
       const totalQuestions = completedTest.questions.length;
@@ -307,11 +310,23 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
         await saveWrongAnswer(wrongAnswerTemp);
       }
 
-      // Save test result
-      await saveTestResult(result);
+      // Save test result with retry
+      try {
+        await retryOperation(async () => {
+          await saveTestResult(result);
+        });
 
-      // 重新获取最新的错题列表，包含统计后的数据
-      const updatedWrongAnswers = await getWrongAnswers();
+        // 重新获取最新的错题列表，包含统计后的数据
+        const updatedWrongAnswers = await getWrongAnswers();
+      } catch (error) {
+        console.error('Failed to save test result:', error);
+        toast({
+          title: "保存失败",
+          description: "请检查网络连接后重试",
+          variant: "destructive"
+        });
+        return;
+      }
 
       // Update state
       setActiveTest(null);
