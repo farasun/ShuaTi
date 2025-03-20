@@ -56,17 +56,29 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
   const { toast } = useToast();
 
   // 修改：不自动恢复测试，确保默认显示首页
-  // Recovery of active test only when needed, not on first load
-  // 注释掉自动恢复功能，确保应用打开时默认显示首页
-  // useEffect(() => {
-  //   const loadActiveTest = async () => {
-  //     const savedTest = await getCurrentTest();
-  //     if (savedTest && !savedTest.completed) {
-  //       setActiveTest(savedTest);
-  //     }
-  //   };
-  //   loadActiveTest();
-  // }, []);
+  // 自动恢复未完成的测试
+  useEffect(() => {
+    const loadActiveTest = async () => {
+      const savedTest = await getCurrentTest();
+      if (savedTest && !savedTest.completed) {
+        const confirmResume = window.confirm("发现未完成的测试，是否继续?");
+        if (confirmResume) {
+          setActiveTest(savedTest);
+          setSelectedAnswer(savedTest.questions[savedTest.currentQuestionIndex]?.selectedAnswer ?? null);
+        } else {
+          await clearCurrentTest();
+        }
+      }
+    };
+    loadActiveTest();
+  }, []);
+
+  // 自动保存答题进度
+  useEffect(() => {
+    if (activeTest && !activeTest.completed) {
+      saveCurrentTest(activeTest);
+    }
+  }, [activeTest]);
 
   useEffect(() => {
     const initializeWrongAnswers = async () => {

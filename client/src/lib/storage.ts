@@ -43,7 +43,9 @@ export const clearAllData = async (): Promise<void> => {
 
 // Test Storage Operations
 export const saveCurrentTest = async (test: Test): Promise<void> => {
-  await localforage.setItem(CURRENT_TEST_KEY, test);
+  return retryOperation(async () => {
+    await localforage.setItem(CURRENT_TEST_KEY, test);
+  });
 };
 
 export const getCurrentTest = async (): Promise<Test | null> => {
