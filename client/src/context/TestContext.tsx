@@ -263,9 +263,10 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
 
   // Submit the test and calculate results
   const submitTest = async () => {
-    if (!activeTest) return;
+    if (!activeTest || isLoading) return;
 
     try {
+      setIsLoading(true);
       // Mark test as completed
       const completedTest: Test = {
         ...activeTest,
@@ -375,6 +376,8 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
         description: "Failed to submit test. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
