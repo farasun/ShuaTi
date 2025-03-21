@@ -184,30 +184,7 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
   // Handle answer selection
   const selectAnswer = (optionIndex: number) => {
     if (!activeTest || activeTest.completed) return;
-
     setSelectedAnswer(optionIndex);
-
-    // Update the test answers
-    const updatedTest = { ...activeTest };
-    const currentAnswer = updatedTest.answers[updatedTest.currentQuestionIndex];
-
-    // Update the answer
-    updatedTest.answers[updatedTest.currentQuestionIndex] = {
-      ...currentAnswer,
-      selectedOptionIndex: optionIndex,
-      isCorrect: optionIndex === currentQuestion?.correctIndex
-    };
-
-    // Save the updated test
-    setActiveTest(updatedTest);
-    saveCurrentTest(updatedTest);
-
-    // Show toast notification with auto-dismiss
-    toast({
-      description: "已保存答案", // Answer saved
-      duration: 500, // 自动消失时间设为0.5秒
-      className: "px-4 py-2 bg-green-100 text-green-800 border border-green-200 rounded-md shadow-sm",
-    });
   };
 
   // Navigate to next question
