@@ -245,8 +245,12 @@ const calculatePreciseChapterAllocations = (
         if (!allocated) break; // 如果无法分配则退出
       }
         
-        if (available > current) {
-          const toAdd = Math.min(diff, available - current);
+        // 如果该章节还有可用题目，进行分配
+        if (available > current && diff > 0) {
+          const toAdd = Math.min(diff, Math.min(available - current, maxPerChapter - current));
+          allocations.set(chapter, current + toAdd);
+          diff -= toAdd;
+        }
           allocations.set(chapter, current + toAdd);
           diff -= toAdd;
         }
