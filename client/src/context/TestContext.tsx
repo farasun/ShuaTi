@@ -184,7 +184,23 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
   // Handle answer selection
   const selectAnswer = (optionIndex: number) => {
     if (!activeTest || activeTest.completed) return;
+    
+    // Just update the current selected answer in memory
     setSelectedAnswer(optionIndex);
+    
+    // Update the test answers without saving
+    const updatedTest = { ...activeTest };
+    const currentAnswer = updatedTest.answers[updatedTest.currentQuestionIndex];
+    
+    // Update the answer
+    updatedTest.answers[updatedTest.currentQuestionIndex] = {
+      ...currentAnswer,
+      selectedOptionIndex: optionIndex,
+      isCorrect: optionIndex === currentQuestion?.correctIndex
+    };
+    
+    // Only update in memory, don't save yet
+    setActiveTest(updatedTest);
   };
 
   // Navigate to next question
