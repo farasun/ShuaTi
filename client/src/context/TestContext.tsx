@@ -360,12 +360,13 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
         });
       }
 
-      // Update state
-      setActiveTest(completedTest);
+      // Clear active test and update results
+      setActiveTest(null);
       setTestResults(result);
       setSelectedAnswer(null);
 
       // Clear current test since it's completed
+      await clearCurrentTest();
       await clearCurrentTest();
     } catch (error) {
       console.error('Error submitting test:', error);
