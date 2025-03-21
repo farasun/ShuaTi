@@ -40,7 +40,9 @@ export const WelcomeScreen: React.FC = () => {
       //Process wrong answers to count unique questions
       const uniqueWrongAnswers = new Set();
       tests.forEach(test => {
-        test.wrongAnswers.forEach(wa => uniqueWrongAnswers.add(wa.qid));
+        if (test && test.wrongAnswers && Array.isArray(test.wrongAnswers)) {
+          test.wrongAnswers.forEach(wa => wa && wa.qid && uniqueWrongAnswers.add(wa.qid));
+        }
       });
       const updatedStats = {...userStats, wrongAnswers: uniqueWrongAnswers.size};
       setRecentTests(tests);
