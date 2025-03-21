@@ -36,8 +36,7 @@ export const TestScreen: React.FC = () => {
         </span>
       </div>
       </div>
-
-      {/* Question card */}
+      
       <Card className="shadow-sm">
         <CardContent className="p-6">
           <div className="space-y-4">
