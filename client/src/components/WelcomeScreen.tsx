@@ -37,14 +37,11 @@ export const WelcomeScreen: React.FC = () => {
     const loadData = async () => {
       const tests = await getTestResults();
       const userStats = await getUserStats();
-      //Process wrong answers to count unique questions
-      const uniqueWrongAnswers = new Set();
-      tests.forEach(test => {
-        if (test && test.wrongAnswers && Array.isArray(test.wrongAnswers)) {
-          test.wrongAnswers.forEach(wa => wa && wa.qid && uniqueWrongAnswers.add(wa.qid));
-        }
-      });
-      const updatedStats = {...userStats, wrongAnswers: uniqueWrongAnswers.size};
+      // Get wrong answers from storage
+      const storedWrongAnswers = await getWrongAnswers();
+      const uniqueWrongAnswersCount = storedWrongAnswers.length;
+      
+      const updatedStats = {...userStats, wrongAnswers: uniqueWrongAnswersCount};
       setRecentTests(tests);
       setStats(updatedStats);
     };
