@@ -185,10 +185,10 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
   const selectAnswer = (optionIndex: number) => {
     if (!activeTest || activeTest.completed) return;
     
-    // Just update the current selected answer in memory
+    // Update the current selected answer in memory
     setSelectedAnswer(optionIndex);
     
-    // Update the test answers without saving
+    // Update the test answers
     const updatedTest = { ...activeTest };
     const currentAnswer = updatedTest.answers[updatedTest.currentQuestionIndex];
     
@@ -199,8 +199,25 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
       isCorrect: optionIndex === currentQuestion?.correctIndex
     };
     
-    // Only update in memory, don't save yet
+    // Save to memory and persist
     setActiveTest(updatedTest);
+    saveCurrentTest(updatedTest);
+  };
+
+  // Navigate between questions
+  const goToPreviousQuestion = () => {
+    if (!activeTest || activeTest.currentQuestionIndex === 0) return;
+    
+    const prevIndex = activeTest.currentQuestionIndex - 1;
+    const prevAnswer = activeTest.answers[prevIndex]?.selectedOptionIndex ?? null;
+    
+    setActiveTest({
+      ...activeTest,
+      currentQuestionIndex: prevIndex
+    });
+    
+    // Restore previous answer
+    setSelectedAnswer(prevAnswer);
   };
 
   // Navigate to next question
