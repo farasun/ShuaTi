@@ -68,14 +68,14 @@ export const generateTest = (
 
   // 获取题库中每章的题目数量
   const availableQuestions = getChapterCounts(questionBank);
-  
+
   // 按官方考纲比例计算每章应分配的题目数量
   const chapterAllocations = calculatePreciseChapterAllocations(
     availableQuestions, 
     totalQuestions,
     log
   );
-  
+
   // 根据分配从各章节选择题目
   const questions = selectQuestionsFromChapters(
     questionBank, 
@@ -83,23 +83,23 @@ export const generateTest = (
     totalQuestions,
     log
   );
-  
+
   log.total = questions.length;
   console.log('动态组卷完成，分配日志:', log);
-  
+
   return questions;
 };
 
 // 获取题库中每章节的题目数量
 const getChapterCounts = (questionBank: Question[]): ChapterCount[] => {
   const chapterMap = new Map<string, number>();
-  
+
   // 统计每章的题目数
   questionBank.forEach(question => {
     const count = chapterMap.get(question.chapter) || 0;
     chapterMap.set(question.chapter, count + 1);
   });
-  
+
   // 转换为数组形式
   return Array.from(chapterMap.entries()).map(([chapter, count]) => ({
     chapter,
@@ -115,36 +115,36 @@ const calculatePreciseChapterAllocations = (
 ): Map<string, number> => {
   const allocations = new Map<string, number>();
   const warnings: string[] = [];
-  
+
   // 创建章节可用题目查询映射
   const availableCountByChapter = new Map<string, number>();
   availableQuestions.forEach(({ chapter, count }) => {
     availableCountByChapter.set(chapter, count);
   });
-  
+
   // 计算理论分配（基于官方权重）
   const theoreticalAllocations = new Map<string, number>();
   let theoreticalTotal = 0;
-  
+
   Object.entries(OFFICIAL_CHAPTER_WEIGHTS).forEach(([chapter, weight]) => {
     const theoreticalCount = (weight / 100) * totalQuestions;
     theoreticalAllocations.set(chapter, theoreticalCount);
     theoreticalTotal += theoreticalCount;
-    
+
     // 记录到日志
     log.chapter_distribution[chapter] = {
       actual: 0,
       theoretical: theoreticalCount,
       percentage: `${weight}%`
     };
-    
+
     // 检查章节是否在题库中有题目
     if (!availableCountByChapter.has(chapter)) {
       warnings.push(`${chapter}在题库中没有题目`);
       availableCountByChapter.set(chapter, 0);
     }
   });
-  
+
   // 实施小样本优化策略（N < 50时）
   if (totalQuestions < 50) {
     // 第一步：确保第一梯队章节（权重≥10%）至少有1题
@@ -156,7 +156,7 @@ const calculatePreciseChapterAllocations = (
         warnings.push(`${chapter}无可用题目，无法保证最低分配`);
       }
     });
-    
+
     // 第二步：分配第二梯队章节（权重6-8%）
     PRIORITY_TIERS.TIER_2.forEach(chapter => {
       if (availableCountByChapter.get(chapter) || 0 > 0) {
@@ -166,16 +166,16 @@ const calculatePreciseChapterAllocations = (
         warnings.push(`${chapter}无可用题目，无法分配`);
       }
     });
-    
+
     // 第三步：剩余题量按比例分配给第三梯队（权重≤4%）
     const allocatedSoFar = Array.from(allocations.values()).reduce((sum, val) => sum + val, 0);
     const remaining = totalQuestions - allocatedSoFar;
-    
+
     if (remaining > 0) {
       // 计算第三梯队的总理论值
       const tier3Total = PRIORITY_TIERS.TIER_3.reduce((sum, chapter) => 
         sum + (theoreticalAllocations.get(chapter) || 0), 0);
-      
+
       // 按比例分配剩余题目
       PRIORITY_TIERS.TIER_3.forEach(chapter => {
         const available = availableCountByChapter.get(chapter) || 0;
@@ -200,7 +200,7 @@ const calculatePreciseChapterAllocations = (
     Object.entries(OFFICIAL_CHAPTER_WEIGHTS).forEach(([chapter, weight]) => {
       const available = availableCountByChapter.get(chapter) || 0;
       const theoreticalCount = (weight / 100) * totalQuestions;
-      
+
       if (available >= theoreticalCount) {
         // 如果有足够题目，按理论值分配
         allocations.set(chapter, Math.floor(theoreticalCount));
@@ -215,31 +215,39 @@ const calculatePreciseChapterAllocations = (
       }
     });
   }
-  
+
   // 最终调整：确保总题数正确
   let allocatedTotal = Array.from(allocations.values()).reduce((sum, val) => sum + val, 0);
   let diff = totalQuestions - allocatedTotal;
-  
+
   if (diff !== 0) {
     console.log(`需要调整题目数量: 当前${allocatedTotal}, 目标${totalQuestions}, 差值${diff}`);
-    
-    // 如果需要增加题目
+
+    // 获取权重大于等于6的章节
+    const highWeightChapters = Object.keys(OFFICIAL_CHAPTER_WEIGHTS).filter(chapter => OFFICIAL_CHAPTER_WEIGHTS[chapter] >= 6);
+    let rotationIndex = 0;
+
+
+    // 处理差值
     if (diff > 0) {
-      // 按照权重大小排序章节
-      const sortedChapters = Object.entries(OFFICIAL_CHAPTER_WEIGHTS)
-        .sort((a, b) => b[1] - a[1])
-        .map(([chapter]) => chapter);
-      
-      for (let i = 0; i < sortedChapters.length && diff > 0; i++) {
-        const chapter = sortedChapters[i];
-        const available = availableCountByChapter.get(chapter) || 0;
-        const current = allocations.get(chapter) || 0;
-        
-        if (available > current) {
-          const toAdd = Math.min(diff, available - current);
-          allocations.set(chapter, current + toAdd);
-          diff -= toAdd;
+      console.log(`需要调整题目数量: 当前${allocatedTotal}, 目标${totalQuestions}, 差值${diff}`);
+
+      // 使用轮询方式分配剩余题目
+      for (let i = 0; i < diff; i++) {
+        // 获取当前轮询的章节
+        const chapter = highWeightChapters[rotationIndex];
+        const currentCount = allocations.get(chapter) || 0;
+        const availableCount = availableCountByChapter.get(chapter) || 0;
+
+        // 检查分配后是否超过20%上限
+        const wouldExceedLimit = (currentCount + 1) > totalQuestions * 0.2;
+
+        if (!wouldExceedLimit && currentCount < availableCount) {
+          allocations.set(chapter, currentCount + 1);
         }
+
+        // 更新轮询索引
+        rotationIndex = (rotationIndex + 1) % highWeightChapters.length;
       }
     } 
     // 如果需要减少题目
@@ -248,12 +256,12 @@ const calculatePreciseChapterAllocations = (
       const sortedChapters = Object.entries(OFFICIAL_CHAPTER_WEIGHTS)
         .sort((a, b) => a[1] - b[1])
         .map(([chapter]) => chapter);
-      
+
       let remaining = -diff;
       for (let i = 0; i < sortedChapters.length && remaining > 0; i++) {
         const chapter = sortedChapters[i];
         const current = allocations.get(chapter) || 0;
-        
+
         if (current > 0) {
           const toRemove = Math.min(remaining, current);
           allocations.set(chapter, current - toRemove);
@@ -261,26 +269,26 @@ const calculatePreciseChapterAllocations = (
         }
       }
     }
-    
+
     allocatedTotal = Array.from(allocations.values()).reduce((sum, val) => sum + val, 0);
     if (allocatedTotal !== totalQuestions) {
       warnings.push(`最终分配题目数(${allocatedTotal})与要求数量(${totalQuestions})不符`);
     }
   }
-  
+
   // 更新日志中的实际分配数
   for (const [chapter, count] of allocations.entries()) {
     if (log.chapter_distribution[chapter]) {
       log.chapter_distribution[chapter].actual = count;
     }
   }
-  
+
   // 验证分配比例偏差
   validateDistribution(allocations, theoreticalAllocations, totalQuestions, warnings);
-  
+
   // 添加警告到日志
   log.warnings.push(...warnings);
-  
+
   return allocations;
 };
 
@@ -293,21 +301,21 @@ const validateDistribution = (
 ) => {
   // 计算允许的最大偏差: max(2%, 100%/N)
   const maxDeviationPercent = Math.max(2, 100 / totalQuestions);
-  
+
   for (const [chapter, theoreticalValue] of theoretical.entries()) {
     const actualValue = actual.get(chapter) || 0;
-    
+
     if (theoreticalValue > 0) {
       // 计算实际占比和理论占比
       const theoreticalPercent = (theoreticalValue / totalQuestions) * 100;
       const actualPercent = (actualValue / totalQuestions) * 100;
       const deviation = Math.abs(actualPercent - theoreticalPercent);
-      
+
       // 检查是否超过最大偏差
       if (deviation > maxDeviationPercent) {
         warnings.push(`${chapter}分配偏差(${deviation.toFixed(1)}%)超过允许范围(${maxDeviationPercent.toFixed(1)}%)`);
       }
-      
+
       // 检查单个章节是否超过理论题数的150%
       if (actualValue > theoreticalValue * 1.5) {
         warnings.push(`${chapter}分配题数(${actualValue})超过理论值(${theoreticalValue.toFixed(1)})的150%`);
@@ -329,50 +337,50 @@ const selectQuestionsFromChapters = (
 ): Question[] => {
   const selectedQuestions: Question[] = [];
   const now = Date.now();
-  
+
   // 清理过期的使用记录
   for (const [qid, timestamp] of recentlyUsedQuestions.entries()) {
     if (now - timestamp > COOLDOWN_PERIOD) {
       recentlyUsedQuestions.delete(qid);
     }
   }
-  
+
   // 按章节分组
   const questionsByChapter = _.groupBy(questionBank, 'chapter');
-  
+
   // 从每个章节选择题目
   for (const [chapter, allocation] of chapterAllocations.entries()) {
     if (allocation > 0) {
       const chapterQuestions = questionsByChapter[chapter] || [];
-      
+
       // 如果章节题目不足
       if (chapterQuestions.length < allocation) {
         log.warnings.push(`${chapter}实际可用题目(${chapterQuestions.length})少于分配数量(${allocation})`);
       }
-      
+
       // 过滤掉最近使用过的题目
       const availableQuestions = chapterQuestions.filter(q => 
         !recentlyUsedQuestions.has(q.qid) || 
         (now - (recentlyUsedQuestions.get(q.qid) || 0)) > COOLDOWN_PERIOD
       );
-      
+
       // 如果可用题目太少，使用所有题目
       const questionsToUse = availableQuestions.length < allocation ? chapterQuestions : availableQuestions;
-      
+
       // 随机选择题目
       const shuffled = _.shuffle(questionsToUse);
       const selected = shuffled.slice(0, allocation);
-      
+
       // 记录选中的题目
       selected.forEach(q => recentlyUsedQuestions.set(q.qid, now));
-      
+
       selectedQuestions.push(...selected);
     }
   }
-  
+
   // 最终校验与调整
   let finalQuestions = _.shuffle(selectedQuestions);
-  
+
   // 确保题目数量正确
   if (finalQuestions.length !== totalQuestions) {
     if (finalQuestions.length > totalQuestions) {
@@ -380,29 +388,29 @@ const selectQuestionsFromChapters = (
       finalQuestions = finalQuestions.slice(0, totalQuestions);
     } else if (finalQuestions.length < totalQuestions && questionBank.length >= totalQuestions) {
       console.log(`题目不足: 需要从题库随机补充 ${totalQuestions - finalQuestions.length} 题`);
-      
+
       // 获取未被选中且未在冷却期的题目
       const selectedIds = new Set(finalQuestions.map(q => q.qid));
       const remainingQuestions = questionBank.filter(q => 
         !selectedIds.has(q.qid) && 
         (!recentlyUsedQuestions.has(q.qid) || (now - (recentlyUsedQuestions.get(q.qid) || 0)) > COOLDOWN_PERIOD)
       );
-      
+
       // 如果剩余可用题目不足，则使用所有剩余题目
       const questionsToUse = remainingQuestions.length === 0 ? 
         questionBank.filter(q => !selectedIds.has(q.qid)) : 
         remainingQuestions;
-      
+
       // 随机选择并补充
       const additional = _.shuffle(questionsToUse).slice(0, totalQuestions - finalQuestions.length);
       finalQuestions = [...finalQuestions, ...additional];
-      
+
       // 记录补充的题目
       additional.forEach(q => recentlyUsedQuestions.set(q.qid, now));
-      
+
       log.warnings.push(`由于分配不均，随机补充了${additional.length}题以达到要求数量`);
     }
   }
-  
+
   return finalQuestions;
 };
