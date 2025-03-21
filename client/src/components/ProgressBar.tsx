@@ -1,5 +1,6 @@
 
 import { cn } from "@/lib/utils";
+import { Progress } from "@/components/ui/progress";
 
 interface ProgressBarProps {
   current: number;
@@ -7,17 +8,14 @@ interface ProgressBarProps {
 }
 
 export function ProgressBar({ current, total }: ProgressBarProps) {
-  const progress = (current / total) * 100;
+  const progress = current > 0 ? Math.min((current / total) * 100, 100) : 0;
   
   return (
-    <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-      <div 
-        className={cn(
-          "h-full transition-all duration-300 ease-in-out",
-          "bg-primary"
-        )}
-        style={{ width: `${progress}%` }}
-      />
-    </div>
+    <Progress 
+      value={progress} 
+      max={100}
+      className="w-full bg-gray-200"
+      indicatorClassName="bg-primary transition-all duration-300 ease-in-out"
+    />
   );
 }
