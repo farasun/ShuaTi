@@ -38,51 +38,18 @@ export const TestScreen: React.FC = () => {
         </div>
       </div>
 
-      <Card className="shadow-sm">
-        <CardContent className="p-6">
-          {/* Question text */}
-          <h3 className="text-lg font-medium leading-6 text-gray-900 mb-4">
-            {currentQuestion.text}
-          </h3>
-
-          {/* Question meta info */}
-          <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-            <BookOpen className="h-4 w-4" />
-            <span>Chapter: {currentQuestion.chapter}</span>
-          </div>
-
-          {/* Options */}
-          <div className="space-y-2">
-            {currentQuestion.options.map((option, index) => (
-              <button
-                key={index}
-                onClick={() => selectAnswer(index)}
-                className={`w-full text-left p-4 rounded border transition-colors
-                  ${selectedAnswer === index 
-                    ? 'bg-purple-100 border-purple-500' 
-                    : 'hover:bg-gray-50 border-gray-200'
-                  }`}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>iv>
-      </div>
-
       {/* Question card */}
       <Card className="shadow-sm mb-2"> {/* Reduced spacing */}
         <CardContent className="p-6">
           <div className="space-y-4">
             {/* Question text */}
             <h3 className="text-lg font-medium leading-6 text-gray-900 mb-4">
-              {currentQuestion?.text}
+              {currentQuestion.text}
             </h3>
 
             {/* Options */}
             <div className="space-y-2">
-              {currentQuestion?.options?.map((option, index) => (
+              {currentQuestion.options.map((option, index) => (
                 <button
                   key={index}
                   onClick={() => selectAnswer(index)}
