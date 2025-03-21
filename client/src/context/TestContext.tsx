@@ -184,21 +184,21 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
   // Handle answer selection
   const selectAnswer = (optionIndex: number) => {
     if (!activeTest || activeTest.completed) return;
-    
+
     // Update the current selected answer in memory
     setSelectedAnswer(optionIndex);
-    
+
     // Update the test answers
     const updatedTest = { ...activeTest };
     const currentAnswer = updatedTest.answers[updatedTest.currentQuestionIndex];
-    
+
     // Update the answer
     updatedTest.answers[updatedTest.currentQuestionIndex] = {
       ...currentAnswer,
       selectedOptionIndex: optionIndex,
       isCorrect: optionIndex === currentQuestion?.correctIndex
     };
-    
+
     // Save to memory and persist
     setActiveTest(updatedTest);
     saveCurrentTest(updatedTest);
@@ -230,9 +230,12 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
       currentQuestionIndex: activeTest.currentQuestionIndex + 1 
     };
 
+    // Restore next answer from saved answers
+    const nextAnswer = updatedTest.answers[updatedTest.currentQuestionIndex]?.selectedOptionIndex ?? null;
+
     // Update state and save
     setActiveTest(updatedTest);
-    setSelectedAnswer(null);
+    setSelectedAnswer(nextAnswer);
     await saveCurrentTest(updatedTest);
   };
 
@@ -240,19 +243,29 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
   const goToPreviousQuestion = () => {
     if (!activeTest || activeTest.currentQuestionIndex === 0) return;
 
-    const updatedTest = { 
-      ...activeTest,
-      currentQuestionIndex: activeTest.currentQuestionIndex - 1 
-    };
+    const prevIndex = activeTest.currentQuestionIndex - 1;
 
-    // Update state and save
+    // Save current answer before moving
+    const updatedTest = { ...activeTest };
+    const currentAnswer = updatedTest.answers[updatedTest.currentQuestionIndex];
+
+    if (selectedAnswer !== null) {
+      updatedTest.answers[updatedTest.currentQuestionIndex] = {
+        ...currentAnswer,
+        selectedOptionIndex: selectedAnswer,
+        isCorrect: selectedAnswer === currentQuestion?.correctIndex
+      };
+    }
+
+    updatedTest.currentQuestionIndex = prevIndex;
+
+    // Restore previous answer from saved answers
+    const prevAnswer = updatedTest.answers[prevIndex]?.selectedOptionIndex ?? null;
+
+    // Save test state and update UI
     setActiveTest(updatedTest);
-
-    // Set the previously selected answer for this question
-    const prevAnswer = updatedTest.answers[updatedTest.currentQuestionIndex].selectedOptionIndex;
-    setSelectedAnswer(prevAnswer);
-
     saveCurrentTest(updatedTest);
+    setSelectedAnswer(prevAnswer);
   };
 
   // Submit the test and calculate results
