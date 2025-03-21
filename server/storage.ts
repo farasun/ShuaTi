@@ -36,4 +36,37 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
+
+export class DbStorage implements IStorage {
+  private db: any;
+  private pool: Pool;
+
+  constructor() {
+    const poolConfig = {
+      connectionString: process.env.DATABASE_URL,
+      max: 10
+    };
+    this.pool = new Pool(poolConfig);
+    this.db = drizzle(this.pool);
+  }
+
+  async getUser(id: number): Promise<User | undefined> {
+    const results = await this.db.select().from(users).where(eq(users.id, id));
+    return results[0];
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const results = await this.db.select().from(users).where(eq(users.username, username));
+    return results[0];
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await this.db.insert(users).values(insertUser).returning();
+    return user;
+  }
+}
+
+// Switch to database storage
+export const storage = new DbStorage();
