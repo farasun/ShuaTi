@@ -129,7 +129,7 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
 
       // 生成测试题目
       console.log(`正在生成${numQuestions}题的测试...`);
-      const questions = generateTest(questionBank as Question[], numQuestions);
+      const questions = await generateTest(numQuestions);
 
       if (questions.length === 0) {
         toast({
