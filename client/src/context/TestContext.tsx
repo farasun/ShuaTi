@@ -342,7 +342,7 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
         // 即使出错也继续执行，确保测试结果能保存
       }
 
-      // Save test result with retry
+      // Save test result with retry, but don't throw error
       try {
         await retryOperation(async () => {
           await saveTestResult(result);
@@ -350,20 +350,19 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
 
         // 重新获取最新的错题列表，包含统计后的数据
         const updatedWrongAnswers = await getWrongAnswers();
+        setWrongAnswers(updatedWrongAnswers);
       } catch (error) {
         console.error('Failed to save test result:', error);
         toast({
+          variant: "destructive",
           title: "保存失败",
-          description: "请检查网络连接后重试",
-          variant: "destructive"
+          description: "测试结果保存失败，但不影响本次测试。"
         });
-        return;
       }
 
       // Update state
-      setActiveTest(null);
+      setActiveTest(completedTest);
       setTestResults(result);
-      setWrongAnswers(updatedWrongAnswers);
       setSelectedAnswer(null);
 
       // Clear current test since it's completed
