@@ -204,22 +204,6 @@ export const TestProvider: React.FC<TestProviderProps> = ({ children }) => {
     saveCurrentTest(updatedTest);
   };
 
-  // Navigate between questions
-  const goToPreviousQuestion = () => {
-    if (!activeTest || activeTest.currentQuestionIndex === 0) return;
-    
-    const prevIndex = activeTest.currentQuestionIndex - 1;
-    const prevAnswer = activeTest.answers[prevIndex]?.selectedOptionIndex ?? null;
-    
-    setActiveTest({
-      ...activeTest,
-      currentQuestionIndex: prevIndex
-    });
-    
-    // Restore previous answer
-    setSelectedAnswer(prevAnswer);
-  };
-
   // Navigate to next question
   const goToNextQuestion = async () => {
     if (!activeTest) return;
