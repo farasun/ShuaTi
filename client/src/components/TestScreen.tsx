@@ -10,7 +10,7 @@ export const TestScreen: React.FC = () => {
     selectedAnswer, 
     selectAnswer,
     setActiveTest,
-    setSelectedAnswer
+    setCurrentAnswer: setSelectedAnswer
   } = useTest();
 
   // 添加页面刷新确认
