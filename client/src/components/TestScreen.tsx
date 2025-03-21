@@ -8,7 +8,9 @@ export const TestScreen: React.FC = () => {
     activeTest, 
     currentQuestion, 
     selectedAnswer, 
-    selectAnswer 
+    selectAnswer,
+    setActiveTest,
+    setSelectedAnswer
   } = useTest();
 
   // 添加页面刷新确认
@@ -26,6 +28,76 @@ export const TestScreen: React.FC = () => {
 
   // If there's no active test, don't render anything
   if (!activeTest || !currentQuestion) return null;
+
+  const handleOptionSelect = (optionIndex: number) => {
+    setSelectedAnswer(optionIndex);
+  };
+
+  const handleNextQuestion = () => {
+    if (!activeTest || selectedAnswer === null) return;
+
+    // 保存当前答案
+    if (currentQuestion) {
+      const updatedAnswers = [...activeTest.answers];
+      updatedAnswers[activeTest.currentQuestionIndex] = {
+        qid: currentQuestion.qid,
+        questionIndex: activeTest.currentQuestionIndex,
+        selectedOptionIndex: selectedAnswer,
+        correctOptionIndex: currentQuestion.correctIndex,
+        isCorrect: selectedAnswer === currentQuestion.correctIndex
+      };
+
+      const nextIndex = activeTest.currentQuestionIndex + 1;
+      setActiveTest({
+        ...activeTest,
+        answers: updatedAnswers,
+        currentQuestionIndex: nextIndex
+      });
+    }
+    setSelectedAnswer(null);
+  };
+
+  const handlePrevQuestion = () => {
+    if (!activeTest || activeTest.currentQuestionIndex <= 0) return;
+
+    // 保存当前答案如果已选择
+    if (selectedAnswer !== null && currentQuestion) {
+      const updatedAnswers = [...activeTest.answers];
+      updatedAnswers[activeTest.currentQuestionIndex] = {
+        qid: currentQuestion.qid,
+        questionIndex: activeTest.currentQuestionIndex,
+        selectedOptionIndex: selectedAnswer,
+        correctOptionIndex: currentQuestion.correctIndex,
+        isCorrect: selectedAnswer === currentQuestion.correctIndex
+      };
+
+      setActiveTest({
+        ...activeTest,
+        answers: updatedAnswers,
+        currentQuestionIndex: activeTest.currentQuestionIndex - 1
+      });
+    } else {
+      setActiveTest({
+        ...activeTest,
+        currentQuestionIndex: activeTest.currentQuestionIndex - 1
+      });
+    }
+
+    // 设置上一题的已选答案
+    const prevAnswer = activeTest.answers[activeTest.currentQuestionIndex - 1];
+    setSelectedAnswer(prevAnswer?.selectedOptionIndex ?? null);
+  };
+
+  useEffect(() => {
+    if (activeTest && activeTest.answers) {
+      const currentAnswer = activeTest.answers[activeTest.currentQuestionIndex];
+      if (currentAnswer) {
+        setSelectedAnswer(currentAnswer.selectedOptionIndex);
+      } else {
+        setSelectedAnswer(null);
+      }
+    }
+  }, [activeTest?.currentQuestionIndex, activeTest?.answers]);
 
   return (
     <div className="space-y-6">
@@ -59,7 +131,7 @@ export const TestScreen: React.FC = () => {
               {currentQuestion.options.map((option, index) => (
                 <button
                   key={index}
-                  onClick={() => selectAnswer(index)}
+                  onClick={() => handleOptionSelect(index)}
                   className={`w-full text-left p-4 rounded-lg border transition-colors ${
                     selectedAnswer === index
                       ? 'bg-primary text-primary-foreground border-primary'
@@ -89,6 +161,10 @@ export const TestScreen: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+      <div className="flex justify-between">
+        <button onClick={handlePrevQuestion} disabled={activeTest?.currentQuestionIndex === 0}>上一题</button>
+        <button onClick={handleNextQuestion} disabled={activeTest?.currentQuestionIndex === activeTest?.questions.length -1}>下一题</button>
+      </div>
     </div>
   );
 };
