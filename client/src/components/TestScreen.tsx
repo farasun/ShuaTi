@@ -35,8 +35,8 @@ export const TestScreen: React.FC = () => {
           {activeTest.currentQuestionIndex + 1} / {activeTest.questions.length}
         </span>
       </div>
-      </div>
-      
+
+      {/* Question card */}
       <Card className="shadow-sm">
         <CardContent className="p-6">
           <div className="space-y-4">
@@ -48,7 +48,7 @@ export const TestScreen: React.FC = () => {
                 </span>
               )}
             </div>
-            
+
             {/* Question text */}
             <h3 className="text-lg font-medium leading-6 text-gray-900 mb-4">
               {currentQuestion.text}
@@ -70,7 +70,7 @@ export const TestScreen: React.FC = () => {
                 </button>
               ))}
             </div>
-            
+
             {/* Difficulty and Knowledge Point */}
             <div className="flex items-center gap-4 mt-6 pt-4 border-t border-gray-100">
               {currentQuestion.difficulty && (
