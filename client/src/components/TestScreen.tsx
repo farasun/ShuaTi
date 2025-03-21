@@ -44,12 +44,12 @@ export const TestScreen: React.FC = () => {
           <div className="space-y-4">
             {/* Question text */}
             <h3 className="text-lg font-medium leading-6 text-gray-900 mb-4">
-              {currentQuestion.text}
+              {currentQuestion?.text}
             </h3>
 
             {/* Options */}
             <div className="space-y-2">
-              {currentQuestion.options.map((option, index) => (
+              {currentQuestion?.options?.map((option, index) => (
                 <button
                   key={index}
                   onClick={() => selectAnswer(index)}
