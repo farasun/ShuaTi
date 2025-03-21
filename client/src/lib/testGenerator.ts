@@ -225,15 +225,25 @@ const calculatePreciseChapterAllocations = (
     
     // 如果需要增加题目
     if (diff > 0) {
-      // 按照权重大小排序章节
-      const sortedChapters = Object.entries(OFFICIAL_CHAPTER_WEIGHTS)
-        .sort((a, b) => b[1] - a[1])
-        .map(([chapter]) => chapter);
+      // 计算单章节最大允许题数
+      const maxPerChapter = Math.ceil(totalQuestions * 0.2); // 20%上限
       
-      for (let i = 0; i < sortedChapters.length && diff > 0; i++) {
-        const chapter = sortedChapters[i];
-        const available = availableCountByChapter.get(chapter) || 0;
-        const current = allocations.get(chapter) || 0;
+      // 轮询所有章节进行补充
+      while (diff > 0) {
+        let allocated = false;
+        for (const [chapter, weight] of Object.entries(OFFICIAL_CHAPTER_WEIGHTS)) {
+          const available = availableCountByChapter.get(chapter) || 0;
+          const current = allocations.get(chapter) || 0;
+          
+          // 检查是否超过单章节上限
+          if (current < maxPerChapter && available > current && diff > 0) {
+            allocations.set(chapter, current + 1);
+            diff--;
+            allocated = true;
+          }
+        }
+        if (!allocated) break; // 如果无法分配则退出
+      }
         
         if (available > current) {
           const toAdd = Math.min(diff, available - current);
