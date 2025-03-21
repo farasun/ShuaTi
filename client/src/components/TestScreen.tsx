@@ -28,20 +28,27 @@ export const TestScreen: React.FC = () => {
   if (!activeTest || !currentQuestion) return null;
 
   return (
-    <div className="space-y-2"> {/* Reduced spacing */}
-      {/* Top Bar with Progress */}
-      <div className="bg-purple-200 p-4 flex justify-between items-center">
-        <div>
-          <span className="text-lg font-semibold text-gray-700">
-            {activeTest.currentQuestionIndex + 1} / {activeTest.questions.length}
-          </span>
-        </div>
+    <div className="space-y-6">
+      {/* Question count */}
+      <div className="text-center">
+        <span className="text-lg font-semibold text-gray-700">
+          {activeTest.currentQuestionIndex + 1} / {activeTest.questions.length}
+        </span>
       </div>
 
       {/* Question card */}
-      <Card className="shadow-sm mb-2"> {/* Reduced spacing */}
+      <Card className="shadow-sm">
         <CardContent className="p-6">
           <div className="space-y-4">
+            {/* Chapter badge */}
+            <div className="flex justify-end mb-2">
+              {currentQuestion.chapter && (
+                <span className="text-sm text-gray-500 bg-gray-50 px-2 py-1 rounded-md">
+                  {currentQuestion.chapter}
+                </span>
+              )}
+            </div>
+
             {/* Question text */}
             <h3 className="text-lg font-medium leading-6 text-gray-900 mb-4">
               {currentQuestion.text}
@@ -64,13 +71,8 @@ export const TestScreen: React.FC = () => {
               ))}
             </div>
 
-            {/* Difficulty and Knowledge Point & Chapter */}
+            {/* Difficulty and Knowledge Point */}
             <div className="flex items-center gap-4 mt-6 pt-4 border-t border-gray-100">
-              {currentQuestion.chapter && (
-                <div className="flex items-center text-sm text-gray-500">
-                  Chapter: {currentQuestion.chapter}
-                </div>
-              )}
               {currentQuestion.difficulty && (
                 <div className="flex items-center text-sm text-gray-500">
                   <GraduationCap className="h-4 w-4 mr-1" />
