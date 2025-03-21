@@ -11,12 +11,12 @@ import { Label } from "@/components/ui/label";
 export const WelcomeScreen: React.FC = () => {
   const { startNewTest, activeTest } = useTest();
   const [questionCount, setQuestionCount] = useState<number>(10); // 默认10题
-  
+
   const handleClearData = async () => {
     // 添加确认对话框
     const confirmed = window.confirm("确定要清除所有数据吗？此操作不可恢复。");
     if (!confirmed) return;
-    
+
     await clearAllData();
     // Reload data
     const tests = await getTestResults();
@@ -31,16 +31,22 @@ export const WelcomeScreen: React.FC = () => {
     correctAnswers: 0,
     wrongAnswers: 0
   });
-  
+
   // Load recent tests and stats
   useEffect(() => {
     const loadData = async () => {
       const tests = await getTestResults();
       const userStats = await getUserStats();
+      //Process wrong answers to count unique questions
+      const uniqueWrongAnswers = new Set();
+      tests.forEach(test => {
+        test.wrongAnswers.forEach(wa => uniqueWrongAnswers.add(wa.qid));
+      });
+      const updatedStats = {...userStats, wrongAnswers: uniqueWrongAnswers.size};
       setRecentTests(tests);
-      setStats(userStats);
+      setStats(updatedStats);
     };
-    
+
     loadData();
   }, []);
 
@@ -50,10 +56,10 @@ export const WelcomeScreen: React.FC = () => {
     return date.toLocaleDateString('zh-CN') + ' ' + 
       date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
   };
-  
+
   // If there's an active test, don't show welcome screen
   if (activeTest) return null;
-  
+
   return (
     <div className="space-y-6 animate-fade-in">
       <Card className="shadow-sm">
@@ -65,7 +71,7 @@ export const WelcomeScreen: React.FC = () => {
           </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">成人技能考试刷题工具</h2>
           <p className="text-gray-600 mb-4">轻松生成模拟测试，随时随地提升考试通过率</p>
-          
+
           <div className="mb-4">
             <h3 className="text-sm font-medium text-gray-700 mb-3">选择题目数量:</h3>
             <RadioGroup 
@@ -91,7 +97,7 @@ export const WelcomeScreen: React.FC = () => {
               </div>
             </RadioGroup>
           </div>
-          
+
           <Button 
             onClick={() => startNewTest(questionCount)} 
             className="w-full py-3 px-4"
@@ -101,12 +107,12 @@ export const WelcomeScreen: React.FC = () => {
           </Button>
         </CardContent>
       </Card>
-      
+
       {/* Recent tests section */}
       <Card className="shadow-sm">
         <CardContent className="p-6">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">最近测试</h3>
-          
+
           {recentTests.length === 0 ? (
             <div className="text-center py-6">
               <p className="text-gray-500">暂无测试记录</p>
@@ -132,9 +138,9 @@ export const WelcomeScreen: React.FC = () => {
           )}
         </CardContent>
       </Card>
-      
-      
-      
+
+
+
       {/* Quick stats card */}
       <Card className="shadow-sm">
         <CardContent className="p-6">
@@ -151,7 +157,7 @@ export const WelcomeScreen: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Clear data button */}
       <div className="text-center pt-4">
         <Button 
